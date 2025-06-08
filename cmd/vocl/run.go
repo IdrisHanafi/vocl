@@ -200,5 +200,5 @@ func init() {
 	runCmd.Flags().Float32VarP(&delayTime, "delay", "d", 100, "Echo delay time in milliseconds")
 	runCmd.Flags().Float32VarP(&feedback, "feedback", "f", 0.2, "Echo feedback (0-1)")
 	runCmd.Flags().Float32VarP(&mix, "mix", "m", 0.6, "Echo mix level (0-1)")
-	runCmd.Flags().BoolVarP(&interactive, "interactive", "t", false, "Enable interactive mode for device and parameter selection")
+	runCmd.Flags().BoolVarP(&interactive, "interactive", "t", true, "Enable interactive mode for device and parameter selection")
 }
