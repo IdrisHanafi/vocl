@@ -1,6 +1,6 @@
 package main
 
-import "vocl/cmd/vocl"
+import "github.com/IdrisHanafi/vocl/cmd/vocl"
 
 func main() {
 	vocl.Execute()

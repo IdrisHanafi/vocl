@@ -8,8 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"vocl/pkg/audio"
-
+	"github.com/IdrisHanafi/vocl/pkg/audio"
 	"github.com/gordonklaus/portaudio"
 	"github.com/spf13/cobra"
 )

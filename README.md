@@ -19,13 +19,36 @@ On macOS, you can install `PortAudio` and `pkg-config` using Homebrew:
 brew install pkg-config portaudio
 ```
 
-To build the CLI tool:
+#### Using Make
+
+The project includes a Makefile for easy building and installation:
 
 ```bash
-go build -o vocl cmd/vocl/main.go
+# Build the application
+make build
+
+# Install to /usr/local/bin
+make install
+
+# Remove build artifacts
+make clean
+
+# Uninstall from /usr/local/bin
+make uninstall
+
+# Show available commands
+make help
 ```
 
-This will create an executable named `vocl` in your current directory.
+#### Manual Build
+
+Alternatively, you can build manually:
+
+```bash
+go build -o build/vocl main.go
+```
+
+This will create an executable named `vocl` in the `build` directory.
 
 ## Usage
 
