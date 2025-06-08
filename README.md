@@ -70,3 +70,9 @@ This will:
 If you encounter issues with audio input, make sure you have the necessary permissions to access the microphone and speaker on your system. You can check this in your system settings.
 
 Mac users may need to allow terminal access to the microphone in System Preferences > Security & Privacy > Privacy > Microphone.
+
+# Future Work
+
+Feel free to create a PR on any of the following tasks:
+
+- [ ] Filter background noise (like puffs, statics, etc.). Can't be bothered to understand the math on this right now
