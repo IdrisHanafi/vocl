@@ -8,3 +8,12 @@ using your system's microphone and speaker.
 ### Prerequisites
 
 - Go 1.20 or later
+- [PortAudio](https://www.portaudio.com/)
+
+### Build Locally
+
+On macOS, you can install PortAudio using Homebrew:
+
+```bash
+brew install portaudio
+```
