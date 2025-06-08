@@ -197,8 +197,8 @@ func init() {
 	// Add flags
 	runCmd.Flags().IntVarP(&inputDeviceID, "input", "i", -1, "Input device ID (use -1 for default input device)")
 	runCmd.Flags().IntVarP(&outputDeviceID, "output", "o", -1, "Output device ID (use -1 for default output device)")
-	runCmd.Flags().Float32VarP(&delayTime, "delay", "d", 150, "Echo delay time in milliseconds")
-	runCmd.Flags().Float32VarP(&feedback, "feedback", "f", 0.3, "Echo feedback (0-1)")
-	runCmd.Flags().Float32VarP(&mix, "mix", "m", 0.3, "Echo mix level (0-1)")
+	runCmd.Flags().Float32VarP(&delayTime, "delay", "d", 100, "Echo delay time in milliseconds")
+	runCmd.Flags().Float32VarP(&feedback, "feedback", "f", 0.2, "Echo feedback (0-1)")
+	runCmd.Flags().Float32VarP(&mix, "mix", "m", 0.6, "Echo mix level (0-1)")
 	runCmd.Flags().BoolVarP(&interactive, "interactive", "t", false, "Enable interactive mode for device and parameter selection")
 }
