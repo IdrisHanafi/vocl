@@ -17,7 +17,7 @@ type EchoEffect struct {
 // NewEchoEffect creates a new echo effect with the given parameters
 func NewEchoEffect(sampleRate float64, delayTimeMs float32, feedback float32, mix float32) *EchoEffect {
 	// Convert delay time from milliseconds to samples
-	delaySamples := int(float32(sampleRate) * delayTimeMs / 1000.0)
+	delaySamples := int(float32(sampleRate) * (delayTimeMs / 1000.0))
 	return &EchoEffect{
 		buffer:    make([]float32, delaySamples),
 		position:  0,

@@ -88,7 +88,7 @@ var runCmd = &cobra.Command{
 		// Create echo effects for each channel
 		echoEffects := make([]audio.Effect, inputDevice.MaxInputChannels)
 		for i := range echoEffects {
-			echoEffects[i] = audio.NewEchoEffect(float64(inputDevice.DefaultSampleRate), 100, 0.2, 0.6)
+			echoEffects[i] = audio.NewEchoEffect(float64(inputDevice.DefaultSampleRate), delayTime, feedback, mix)
 		}
 
 		// Create and start the stream
