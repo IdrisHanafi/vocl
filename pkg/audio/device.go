@@ -11,9 +11,30 @@ import (
 	"github.com/gordonklaus/portaudio"
 )
 
+// DeviceInfoFormatter handles formatting and printing of device information
+type DeviceInfoFormatter struct{}
+
+// NewDeviceInfoFormatter creates a new device info formatter
+func NewDeviceInfoFormatter() *DeviceInfoFormatter {
+	return &DeviceInfoFormatter{}
+}
+
+// FormatDeviceInfo returns a formatted string with device information
+func (f *DeviceInfoFormatter) FormatDeviceInfo(index int, dev *portaudio.DeviceInfo) string {
+	return fmt.Sprintf("Device #%d\n  Name: %s\n  Input channels:  %d\n  Output channels: %d\n  Sample rate:     %.0f Hz\n  Input latency:   %.3f sec\n  Output latency:  %.3f sec",
+		index,
+		dev.Name,
+		dev.MaxInputChannels,
+		dev.MaxOutputChannels,
+		dev.DefaultSampleRate,
+		float64(dev.DefaultLowInputLatency)/float64(time.Second),
+		float64(dev.DefaultLowOutputLatency)/float64(time.Second))
+}
+
 // DeviceManager handles audio device operations
 type DeviceManager struct {
-	devices []*portaudio.DeviceInfo
+	devices   []*portaudio.DeviceInfo
+	formatter *DeviceInfoFormatter
 }
 
 // NewDeviceManager creates a new device manager
@@ -22,35 +43,63 @@ func NewDeviceManager() (*DeviceManager, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get devices: %w", err)
 	}
-	return &DeviceManager{devices: devices}, nil
+	return &DeviceManager{
+		devices:   devices,
+		formatter: NewDeviceInfoFormatter(),
+	}, nil
+}
+
+// GetDeviceByType returns a device by its ID and type (input/output)
+func (dm *DeviceManager) GetDeviceByType(id int, deviceType string) (*portaudio.DeviceInfo, error) {
+	// Get all devices of the specified type
+	var validDevices []*portaudio.DeviceInfo
+	for _, dev := range dm.devices {
+		if deviceType == "input" && dev.MaxInputChannels > 0 {
+			validDevices = append(validDevices, dev)
+		} else if deviceType == "output" && dev.MaxOutputChannels > 0 {
+			validDevices = append(validDevices, dev)
+		}
+	}
+
+	if id < 0 || id >= len(validDevices) {
+		return nil, fmt.Errorf("invalid device ID: %d", id)
+	}
+
+	return validDevices[id], nil
 }
 
 // GetDevice returns a device by its ID
-func (dm *DeviceManager) GetDevice(id int) (*portaudio.DeviceInfo, error) {
-	if id < 0 || id >= len(dm.devices) {
-		return nil, fmt.Errorf("invalid device ID: %d", id)
-	}
-	return dm.devices[id], nil
+func (dm *DeviceManager) GetDevice(id int, deviceType string) (*portaudio.DeviceInfo, error) {
+	return dm.GetDeviceByType(id, deviceType)
 }
 
 // GetDefaultInputDevice returns the default input device
 func (dm *DeviceManager) GetDefaultInputDevice() (*portaudio.DeviceInfo, error) {
-	return portaudio.DefaultInputDevice()
+	device, err := portaudio.DefaultInputDevice()
+	if err != nil {
+		return nil, err
+	}
+	if device.MaxInputChannels == 0 {
+		return nil, fmt.Errorf("default input device '%s' has no input channels", device.Name)
+	}
+	return device, nil
 }
 
 // GetDefaultOutputDevice returns the default output device
 func (dm *DeviceManager) GetDefaultOutputDevice() (*portaudio.DeviceInfo, error) {
-	return portaudio.DefaultOutputDevice()
+	device, err := portaudio.DefaultOutputDevice()
+	if err != nil {
+		return nil, err
+	}
+	if device.MaxOutputChannels == 0 {
+		return nil, fmt.Errorf("default output device '%s' has no output channels", device.Name)
+	}
+	return device, nil
 }
 
 // PrintDeviceInfo prints information about a device
 func (dm *DeviceManager) PrintDeviceInfo(index int, dev *portaudio.DeviceInfo) {
-	fmt.Printf("[%d] %s\n", index, dev.Name)
-	fmt.Printf("  Max input channels:  %d\n", dev.MaxInputChannels)
-	fmt.Printf("  Max output channels: %d\n", dev.MaxOutputChannels)
-	fmt.Printf("  Default sample rate: %.0f Hz\n", dev.DefaultSampleRate)
-	fmt.Printf("  Default low input latency:  %.3f sec\n", float64(dev.DefaultLowInputLatency)/float64(time.Second))
-	fmt.Printf("  Default low output latency: %.3f sec\n", float64(dev.DefaultLowOutputLatency)/float64(time.Second))
+	fmt.Println(dm.formatter.FormatDeviceInfo(index, dev))
 	fmt.Println()
 }
 
@@ -60,15 +109,12 @@ func (dm *DeviceManager) SelectDevice(deviceType string) (*portaudio.DeviceInfo,
 
 	// Filter devices based on type
 	var filteredDevices []*portaudio.DeviceInfo
-	var deviceIndices []int
 
-	for i, dev := range dm.devices {
+	for _, dev := range dm.devices {
 		if deviceType == "input" && dev.MaxInputChannels > 0 {
 			filteredDevices = append(filteredDevices, dev)
-			deviceIndices = append(deviceIndices, i)
 		} else if deviceType == "output" && dev.MaxOutputChannels > 0 {
 			filteredDevices = append(filteredDevices, dev)
-			deviceIndices = append(deviceIndices, i)
 		}
 	}
 
@@ -77,17 +123,10 @@ func (dm *DeviceManager) SelectDevice(deviceType string) (*portaudio.DeviceInfo,
 	}
 
 	fmt.Printf("\nAvailable %s devices:\n", deviceType)
+	fmt.Println(strings.Repeat("-", len(deviceType)+20)) // Add separator line
 	for i, dev := range filteredDevices {
-		fmt.Printf("[%d] %s\n", i, dev.Name)
-		fmt.Printf("  Max %s channels: %d\n", deviceType,
-			map[string]int{"input": dev.MaxInputChannels, "output": dev.MaxOutputChannels}[deviceType])
-		fmt.Printf("  Default sample rate: %.0f Hz\n", dev.DefaultSampleRate)
-		fmt.Printf("  Default low %s latency: %.3f sec\n", deviceType,
-			map[string]float64{
-				"input":  float64(dev.DefaultLowInputLatency) / float64(time.Second),
-				"output": float64(dev.DefaultLowOutputLatency) / float64(time.Second),
-			}[deviceType])
-		fmt.Println()
+		formatter := NewDeviceInfoFormatter()
+		fmt.Println(formatter.FormatDeviceInfo(i, dev))
 	}
 
 	for {

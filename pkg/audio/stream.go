@@ -44,6 +44,7 @@ func NewStream(config StreamConfig, effects []Effect) (*Stream, error) {
 		FramesPerBuffer: config.BufferSize,
 	}, func(inBuf, outBuf []float32, _ portaudio.StreamCallbackTimeInfo, _ portaudio.StreamCallbackFlags) {
 		// Process each channel through its effect
+		// TODO: Future optimization to maybe parallelize this processing for each channel
 		for i := 0; i < config.Channels; i++ {
 			// Get the samples for this channel
 			channelIn := make([]float32, len(inBuf)/config.Channels)
